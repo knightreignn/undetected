@@ -61,8 +61,7 @@ const NATURAL_REVIEWS = [
 const ProductCard: React.FC<{ product: Product; index: number; onAddToCart: (p: Product) => void; onViewProduct: (p: Product) => void }> = ({ product, index, onAddToCart, onViewProduct }) => {
   return (
     <div 
-      className="group bg-[#1a1c22] rounded-xl overflow-hidden border border-gray-800 hover:border-blue-500/50 transition-all duration-300 flex flex-col h-full cursor-pointer animate-in fade-in slide-in-from-bottom-4" 
-      style={{ animationDelay: `${0.05 * index}s`, animationFillMode: 'both' }}
+      className="group bg-[#1a1c22] rounded-xl overflow-hidden border border-gray-800 hover:border-blue-500/50 transition-all duration-300 flex flex-col h-full cursor-pointer" 
       onClick={() => onViewProduct(product)}
     >
       <div className="relative aspect-[16/10] overflow-hidden">
@@ -112,7 +111,7 @@ const ProductCard: React.FC<{ product: Product; index: number; onAddToCart: (p: 
 
 const ProductView: React.FC<{ product: Product; onBack: () => void; onAddToCart: (p: Product) => void }> = ({ product, onBack, onAddToCart }) => {
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">
+    <div key={product.id} className="duration-700 ease-out">
       <button 
         onClick={onBack}
         className="flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors group"
@@ -134,7 +133,9 @@ const ProductView: React.FC<{ product: Product; onBack: () => void; onAddToCart:
         </div>
 
         <div className="flex flex-col">
-          <h1 className="text-4xl lg:text-5xl font-manrope font-extrabold text-white mb-4 leading-tight">{product.name}</h1>
+          <h1 className="text-4xl lg:text-5xl font-manrope font-extrabold text-white mb-4 leading-tight">
+            {product.name}
+          </h1>
           <div className="flex items-center gap-4 mb-8">
             <div className="flex items-center gap-2 text-yellow-500">
               {[1, 2, 3, 4, 5].map((s) => <Star key={s} size={14} className="fill-current" />)}
@@ -235,7 +236,7 @@ const ProductView: React.FC<{ product: Product; onBack: () => void; onAddToCart:
 
 const SectionRenderer: React.FC<{ section: any; onAddToCart: (p: Product) => void; onViewProduct: (p: Product) => void }> = ({ section, onAddToCart, onViewProduct }) => {
   return (
-    <section className="mb-20 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both">
+    <section className="mb-20">
       <div className="mb-10 text-center">
         <h2 className="text-4xl font-manrope font-black text-white uppercase tracking-tight italic drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">
           {section.title}
@@ -252,7 +253,7 @@ const SectionRenderer: React.FC<{ section: any; onAddToCart: (p: Product) => voi
 
 const ReviewSection: React.FC = () => {
   return (
-    <section id="reviews-section" className="py-24 border-t border-gray-900 overflow-hidden bg-[#0a0c10] animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both">
+    <section id="reviews-section" className="py-24 border-t border-gray-900 overflow-hidden bg-[#0a0c10]">
       <div className="text-center mb-16 px-4">
         <h2 className="text-5xl lg:text-7xl font-manrope font-black tracking-tighter text-white uppercase italic drop-shadow-[0_0_25px_rgba(59,130,246,0.2)]">
           CUSTOMERS REVIEWS
@@ -265,7 +266,7 @@ const ReviewSection: React.FC = () => {
       
       <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 px-4 lg:px-12 space-y-6 max-w-[2000px] mx-auto">
         {NATURAL_REVIEWS.map((review, i) => (
-          <div key={i} className="break-inside-avoid bg-[#111318] border border-gray-800 rounded-2xl p-6 transition-all duration-300 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/5 group animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 0.05}s`, animationFillMode: 'both' }}>
+          <div key={i} className="break-inside-avoid bg-[#111318] border border-gray-800 rounded-2xl p-6 transition-all duration-300 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/5 group">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-blue-600/20">
@@ -319,8 +320,8 @@ const AuthModal: React.FC<{ isOpen: boolean; mode: 'signin' | 'signup'; onClose:
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose} />
-      <div className="relative bg-[#111318] border border-gray-800 w-full max-w-md p-8 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+      <div className="relative bg-[#111318] border border-gray-800 w-full max-w-md p-8 rounded-2xl shadow-2xl overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500" />
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold text-white font-manrope">
@@ -361,12 +362,12 @@ const App: React.FC = () => {
   const [authModal, setAuthModal] = useState<{ open: boolean; mode: 'signin' | 'signup' }>({ open: false, mode: 'signin' });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // Scroll to top whenever selectedProduct changes to a new product
+  // Trigger scroll and reset animations whenever view changes
   useEffect(() => {
     if (selectedProduct) {
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
-  }, [selectedProduct?.id]); // Use ID to ensure it triggers only on change
+  }, [selectedProduct?.id]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -423,7 +424,7 @@ const App: React.FC = () => {
           <div className="flex h-20 items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               <button onClick={scrollToTop} className="flex-shrink-0 flex items-center group">
-                <span className="text-2xl font-manrope font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] group-hover:drop-shadow-[0_0_20px_rgba(168,85,247,0.7)] transition-all duration-300 pr-2">
+                <span className="text-2xl font-manrope font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 pr-2">
                   UNDETECTED
                 </span>
               </button>
@@ -465,7 +466,7 @@ const App: React.FC = () => {
               >
                 <ShoppingCart size={20} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-[#0c0e12] animate-in zoom-in duration-300">
+                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-[#0c0e12]">
                     {cartCount}
                   </span>
                 )}
@@ -518,7 +519,7 @@ const App: React.FC = () => {
               </div>
             ) : (
               cart.map(item => (
-                <div key={item.id} className="flex gap-4 p-4 bg-[#1a1c22] rounded-xl border border-gray-800 group transition-all hover:border-gray-700 animate-in slide-in-from-right-8 duration-300">
+                <div key={item.id} className="flex gap-4 p-4 bg-[#1a1c22] rounded-xl border border-gray-800 group transition-all hover:border-gray-700">
                   <div className="h-20 w-20 rounded-lg overflow-hidden flex-shrink-0">
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                   </div>
@@ -568,7 +569,7 @@ const App: React.FC = () => {
       <main className="container mx-auto px-4 lg:px-8 py-12">
         {!selectedProduct ? (
           <>
-            <section className="relative pt-12 pb-24 overflow-hidden animate-in fade-in slide-in-from-bottom-12 duration-1000">
+            <section className="relative pt-12 pb-24 overflow-hidden">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] pointer-events-none">
                 <div className="absolute top-[-100px] left-[-200px] w-[600px] h-[600px] bg-blue-600/10 blur-[150px] rounded-full"></div>
                 <div className="absolute top-[100px] right-[-100px] w-[500px] h-[500px] bg-indigo-600/10 blur-[150px] rounded-full"></div>
@@ -602,7 +603,7 @@ const App: React.FC = () => {
               </div>
             </section>
 
-            <div className="bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-500/30 rounded-2xl p-6 mb-16 flex flex-col md:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-both">
+            <div className="bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-500/30 rounded-2xl p-6 mb-16 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-4 text-center md:text-left">
                 <div className="p-3 bg-blue-500 rounded-xl shadow-lg shadow-blue-500/40">
                   <ShoppingBag className="text-white" size={24} />
