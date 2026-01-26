@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   ShoppingBag, 
@@ -25,7 +24,8 @@ import {
   ShieldCheck,
   Zap,
   Truck,
-  Star
+  Star,
+  Layers
 } from 'lucide-react';
 import { NAVIGATION_LINKS, DMA_SECTIONS } from './constants';
 import { Product, ProductStatus } from './types';
@@ -34,14 +34,8 @@ const DISCORD_LINK = "https://discord.gg/pvJG3Ww9xe";
 
 interface CartItem extends Product {
   quantity: number;
+  selectedOption?: string;
 }
-
-const REVIEW_IMAGES = [
-  "https://chatgpt.com/backend-api/estuary/content?id=file_00000000a649859f518e47269f8846c4&ts=490100&p=fs&cid=1&sig=c53b216447849e7591e1f13b6324e93da4c93540e165ea73d76bf&v=0",
-  "https://chatgpt.com/backend-api/estuary/content?id=file_00000000213d2899479e0f63e6e89791&ts=490100&p=fs&cid=1&sig=137452d1137021175653b65905f9604&ts=490100&p=fs&cid=1&sig=60ba1c47d5e0bb1c8ce1b5eda49fa8864141c2c9e165daff2f67e65ea73d76bf&v=0",
-  "https://chatgpt.com/backend-api/estuary/content?id=file_00000000a649859f518e47269f8846c4&ts=490100&p=fs&cid=1&sig=c53b216447849e7591e1f13b6324e93da4c93540e165ea73d76bf&v=0",
-  "https://chatgpt.com/backend-api/estuary/content?id=file_000000008544c06283b0f209594f7943&ts=490100&p=fs&cid=1&sig=7ef70be5213b2899479e0f63e6e89791&ts=490100&p=fs&cid=1&sig=137452d1137021175653b65905f9604&ts=490100&p=fs&cid=1&sig=60ba1c47d5e0bb1c8ce1b5eda49fa8864141c2c9e165daff2f67e65ea73d76bf&v=0"
-];
 
 const NATURAL_REVIEWS = [
   { user: "zagon", date: "23/03/2025", text: "+Rep. I liked it so much that I decided to buy my second kit. lol. Everything was perfect. This time I bought it with the Apex and Valorant firmware. The best firmware. Now I can build another DMA pc. Thanks for showing me this world of DMA Sanzgaa.", initials: "ZG" },
@@ -61,14 +55,14 @@ const NATURAL_REVIEWS = [
 const ProductCard: React.FC<{ product: Product; index: number; onAddToCart: (p: Product) => void; onViewProduct: (p: Product) => void }> = ({ product, index, onAddToCart, onViewProduct }) => {
   return (
     <div 
-      className="group bg-[#1a1c22] rounded-xl overflow-hidden border border-gray-800 hover:border-blue-500/50 transition-all duration-300 flex flex-col h-full cursor-pointer" 
+      className="group bg-[#1a1c22] rounded-xl overflow-hidden border border-gray-800 hover:border-blue-500 transition-all duration-300 flex flex-col h-full cursor-pointer" 
       onClick={() => onViewProduct(product)}
     >
-      <div className="relative aspect-[16/10] overflow-hidden">
+      <div className="relative aspect-[16/10] overflow-hidden bg-white/5">
         <img 
           src={product.image} 
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
         />
         {product.status && (
           <div className={`absolute top-3 left-3 px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1 uppercase tracking-wider ${
@@ -81,27 +75,20 @@ const ProductCard: React.FC<{ product: Product; index: number; onAddToCart: (p: 
           </div>
         )}
       </div>
-      <div className="p-5 flex flex-col flex-grow">
-        <h3 className="text-lg font-semibold text-gray-100 mb-3 line-clamp-2 leading-tight min-h-[3rem]">
+      <div className="p-6 flex flex-col flex-grow">
+        <h3 className="text-base font-bold text-gray-100 mb-4 line-clamp-2 leading-tight min-h-[2.5rem]">
           {product.name}
         </h3>
-        <div className="mt-auto">
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-gray-500 text-xs font-medium">FROM</span>
-            <span className="text-xl font-bold text-blue-400">{product.price}</span>
-            {product.originalPrice && (
-              <span className="text-sm text-gray-500 line-through decoration-red-500/50">{product.originalPrice}</span>
-            )}
-          </div>
+        <div className="mt-auto flex items-center justify-between">
+          <span className="text-xl font-bold text-white">{product.price}</span>
           <button 
             onClick={(e) => {
               e.stopPropagation();
-              onAddToCart(product);
+              onViewProduct(product);
             }}
-            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors duration-200 shadow-lg shadow-blue-600/10"
+            className="p-2.5 bg-gray-800 hover:bg-blue-600 text-white rounded-lg transition-all active:scale-95"
           >
             <ShoppingCart size={18} />
-            Add to Cart
           </button>
         </div>
       </div>
@@ -109,125 +96,157 @@ const ProductCard: React.FC<{ product: Product; index: number; onAddToCart: (p: 
   );
 };
 
-const ProductView: React.FC<{ product: Product; onBack: () => void; onAddToCart: (p: Product) => void }> = ({ product, onBack, onAddToCart }) => {
-  return (
-    <div key={product.id} className="duration-700 ease-out">
-      <button 
-        onClick={onBack}
-        className="flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors group"
-      >
-        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-        Back to Store
-      </button>
+const ProductView: React.FC<{ 
+  product: Product; 
+  onBack: () => void; 
+  onAddToCart: (p: Product, qty: number, optionIdx?: number) => void 
+}> = ({ product, onBack, onAddToCart }) => {
+  const [selectedOption, setSelectedOption] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-        <div className="space-y-4">
-          <div className="aspect-[16/10] bg-[#1a1c22] rounded-2xl border border-gray-800 overflow-hidden relative shadow-2xl">
-            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-            {product.status && (
-              <div className="absolute top-6 left-6 px-4 py-2 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg backdrop-blur-md text-xs font-bold uppercase">
-                {product.status}
+  const displayPrice = product.options?.[selectedOption]?.price || product.price;
+
+  return (
+    <div key={product.id} className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+      <div className="flex items-center gap-3 mb-8">
+        <button onClick={onBack} className="text-xs text-gray-500 hover:text-white transition-colors">Home</button>
+        <ChevronRight size={12} className="text-gray-700" />
+        <button onClick={onBack} className="text-xs text-gray-500 hover:text-white transition-colors">DMA</button>
+        <ChevronRight size={12} className="text-gray-700" />
+        <span className="text-xs text-gray-300 font-semibold">{product.name}</span>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+        <div className="lg:col-span-8 space-y-8">
+          <div className="bg-[#111318] border border-gray-800 rounded-3xl p-6 lg:p-8 flex flex-col md:flex-row gap-8 shadow-2xl relative overflow-hidden h-full">
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(59,130,246,0.05)_0%,_transparent_70%)] pointer-events-none" />
+            
+            <div className="w-full md:w-1/2 aspect-square rounded-2xl overflow-hidden border border-gray-800/50 shadow-inner group bg-black/20 flex items-center justify-center">
+              <img src={product.image} alt={product.name} className="w-4/5 h-4/5 object-contain transition-transform duration-700 group-hover:scale-110" />
+            </div>
+
+            <div className="w-full md:w-1/2 flex flex-col justify-center">
+              <h1 className="text-3xl lg:text-4xl font-manrope font-extrabold text-white mb-6 leading-tight">
+                {product.name}
+              </h1>
+              
+              <div className="flex flex-wrap gap-2 mb-8">
+                {product.tags ? product.tags.map(tag => (
+                  <div key={tag} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/10 border border-blue-500/20 rounded-full text-[10px] font-black text-white uppercase tracking-widest">
+                    {tag === 'DMA' ? <Layers size={10} /> : <Zap size={10} />}
+                    {tag}
+                  </div>
+                )) : (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/10 border border-blue-500/20 rounded-full text-[10px] font-black text-white uppercase tracking-widest">
+                    <Zap size={10} /> INSTANT DELIVERY
+                  </div>
+                )}
               </div>
-            )}
+
+              <div className="text-3xl font-bold text-white mb-4">{displayPrice}</div>
+              <p className="text-sm text-gray-500 leading-relaxed max-w-sm">
+                Professional grade hardware featuring custom 1:1 firmware for the most secure and undetected experience on the market.
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col">
-          <h1 className="text-4xl lg:text-5xl font-manrope font-extrabold text-white mb-4 leading-tight">
-            {product.name}
-          </h1>
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex items-center gap-2 text-yellow-500">
-              {[1, 2, 3, 4, 5].map((s) => <Star key={s} size={14} className="fill-current" />)}
-              <span className="text-gray-400 text-sm ml-1">4.9/5 (128 Reviews)</span>
-            </div>
-            <div className="h-4 w-px bg-gray-800"></div>
-            <span className="text-green-500 text-sm font-bold flex items-center gap-1.5">
-              <Zap size={14} /> Instant Delivery
-            </span>
-          </div>
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-[#111318] border border-gray-800 rounded-3xl p-8 shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-2">Select Options</h3>
+            <p className="text-xs text-gray-500 mb-8">Flexible access options tailored to your gaming experience!</p>
 
-          <div className="bg-[#1a1c22] border border-gray-800 rounded-2xl p-8 mb-8 shadow-xl">
-            <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-4xl font-bold text-blue-400">{product.price}</span>
-              {product.originalPrice && <span className="text-xl text-gray-500 line-through decoration-red-500/50">{product.originalPrice}</span>}
+            <div className="space-y-3 mb-10">
+              {product.options ? product.options.map((opt, i) => (
+                <button 
+                  key={i}
+                  onClick={() => setSelectedOption(i)}
+                  className={`w-full text-left p-4 rounded-xl border transition-all relative overflow-hidden group ${
+                    selectedOption === i 
+                      ? 'border-blue-500 bg-gradient-to-r from-blue-600/90 to-purple-600/90 shadow-lg shadow-blue-600/20' 
+                      : 'border-gray-800 bg-[#1a1c22] hover:border-gray-700'
+                  }`}
+                >
+                  <div className="relative z-10 flex flex-col gap-1">
+                    <div className="flex justify-between items-center">
+                      <span className={`text-[10px] font-black tracking-widest uppercase ${selectedOption === i ? 'text-blue-100' : 'text-gray-400'}`}>
+                        {opt.label}
+                      </span>
+                      <span className={`text-[9px] font-bold ${selectedOption === i ? 'text-blue-200' : 'text-gray-600'}`}>
+                        {opt.stock}
+                      </span>
+                    </div>
+                    <div className={`text-lg font-bold ${selectedOption === i ? 'text-white' : 'text-gray-200'}`}>
+                      {opt.price}
+                    </div>
+                  </div>
+                </button>
+              )) : (
+                <div className="p-4 rounded-xl border border-blue-500 bg-gradient-to-r from-blue-600/90 to-purple-600/90 text-white font-bold">
+                  Standard Edition
+                </div>
+              )}
             </div>
-            
-            <p className="text-gray-400 leading-relaxed mb-8">
-              Experience the pinnacle of hardware excellence. This premium DMA solution offers direct memory access with undetectable signatures and lightning-fast transfer speeds. Every unit is pre-flashed with secure firmware and includes a lifetime warranty on hardware components.
-            </p>
+
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-grow flex items-center justify-between bg-[#1a1c22] border border-gray-800 rounded-xl px-4 py-3">
+                <button 
+                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800/50 hover:bg-gray-800 text-blue-400 transition-colors"
+                >
+                  <Minus size={18} />
+                </button>
+                <span className="text-lg font-bold text-white">{quantity}</span>
+                <button 
+                  onClick={() => setQuantity(q => q + 1)}
+                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800/50 hover:bg-gray-800 text-blue-400 transition-colors"
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
+            </div>
 
             <button 
-              onClick={() => onAddToCart(product)}
-              className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-lg shadow-xl shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3 mb-4"
+              onClick={() => onAddToCart(product, quantity, selectedOption)}
+              className="w-full py-5 bg-white text-black font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 transition-all active:scale-[0.98] shadow-xl"
             >
-              <ShoppingCart size={22} />
-              Add to Shopping Cart
+              Add To Cart
             </button>
-            <p className="text-center text-xs text-gray-500">Checkout completes via our Discord ticket system</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-[#111318] border border-gray-800 rounded-xl flex items-center gap-3">
-              <ShieldCheck className="text-blue-500" size={24} />
+          <div className="bg-[#111318]/50 border border-gray-800/50 rounded-2xl p-6 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center text-green-500">
+                <ShieldCheck size={20} />
+              </div>
               <div>
-                <p className="text-white text-sm font-bold">1:1 Firmware</p>
-                <p className="text-gray-500 text-xs">Included for free</p>
+                <div className="text-xs font-bold text-white">Lifetime Warranty</div>
+                <div className="text-[10px] text-gray-500">Included on all hardware</div>
               </div>
             </div>
-            <div className="p-4 bg-[#111318] border border-gray-800 rounded-xl flex items-center gap-3">
-              <Truck className="text-purple-500" size={24} />
-              <div>
-                <p className="text-white text-sm font-bold">Fast Shipping</p>
-                <p className="text-gray-500 text-xs">Ships worldwide</p>
-              </div>
-            </div>
+            <button className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Details</button>
           </div>
         </div>
       </div>
-
-      <div className="border-t border-gray-800 pt-16">
-        <h3 className="text-2xl font-bold text-white mb-8">Technical Specifications</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div className="space-y-4">
-            <h4 className="text-blue-400 font-bold text-sm uppercase tracking-widest">Performance</h4>
-            <ul className="space-y-3">
-              <li className="flex justify-between text-sm py-2 border-b border-gray-800/50">
-                <span className="text-gray-500">FPGA Model</span>
-                <span className="text-gray-200">Xilinx® Artix-7</span>
-              </li>
-              <li className="flex justify-between text-sm py-2 border-b border-gray-800/50">
-                <span className="text-gray-500">Transfer Speed</span>
-                <span className="text-gray-200">285 MB/s Burst</span>
-              </li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-purple-400 font-bold text-sm uppercase tracking-widest">Connectivity</h4>
-            <ul className="space-y-3">
-              <li className="flex justify-between text-sm py-2 border-b border-gray-800/50">
-                <span className="text-gray-500">Interface</span>
-                <span className="text-gray-200">PCI Express x1</span>
-              </li>
-              <li className="flex justify-between text-sm py-2 border-b border-gray-800/50">
-                <span className="text-gray-500">External Port</span>
-                <span className="text-gray-200">USB-C High Speed</span>
-              </li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-green-400 font-bold text-sm uppercase tracking-widest">Compatibility</h4>
-            <ul className="space-y-3">
-              <li className="flex justify-between text-sm py-2 border-b border-gray-800/50">
-                <span className="text-gray-500">Operating System</span>
-                <span className="text-gray-200">Windows 10/11</span>
-              </li>
-              <li className="flex justify-between text-sm py-2 border-b border-gray-800/50">
-                <span className="text-gray-500">Requirements</span>
-                <span className="text-gray-200">2nd PC Required</span>
-              </li>
-            </ul>
-          </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-16 border-t border-gray-900">
+        <div className="space-y-4">
+          <h4 className="text-sm font-black text-blue-500 uppercase tracking-widest">Why Choose Us?</h4>
+          <p className="text-sm text-gray-400 leading-relaxed">
+            Our DMA hardware is designed for maximum stealth and throughput. We use customized Xilinx® FPGA chips with proprietary 1:1 firmware to ensure you remain undetected.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="text-sm font-black text-purple-500 uppercase tracking-widest">Compatibility</h4>
+          <p className="text-sm text-gray-400 leading-relaxed">
+            Compatible with all Windows 10 and 11 distributions. Works seamlessly with modern motherboards featuring PCIe slots.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="text-sm font-black text-green-500 uppercase tracking-widest">Setup Support</h4>
+          <p className="text-sm text-gray-400 leading-relaxed">
+            Every purchase includes a dedicated ticket in our Discord for step-by-step setup assistance from our staff.
+          </p>
         </div>
       </div>
     </div>
@@ -238,7 +257,7 @@ const SectionRenderer: React.FC<{ section: any; onAddToCart: (p: Product) => voi
   return (
     <section className="mb-20">
       <div className="mb-10 text-center">
-        <h2 className="text-4xl font-manrope font-black text-white uppercase tracking-tight italic drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+        <h2 className="text-4xl font-manrope font-black text-white uppercase tracking-tight">
           {section.title}
         </h2>
       </div>
@@ -282,16 +301,6 @@ const ReviewSection: React.FC = () => {
               <div className="text-[10px] text-gray-600 font-mono">{review.date}</div>
             </div>
             
-            {i < REVIEW_IMAGES.length && (
-              <div className="rounded-xl overflow-hidden mb-5 border border-gray-800/50">
-                <img 
-                  src={REVIEW_IMAGES[i]} 
-                  alt="Customer proof" 
-                  className="w-full h-auto object-cover opacity-90 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-500" 
-                />
-              </div>
-            )}
-
             <div className="space-y-3">
               <div className="flex gap-1 text-yellow-500/80">
                 {[1,2,3,4,5].map(j => <Star key={j} size={12} fill="currentColor" />)}
@@ -362,7 +371,6 @@ const App: React.FC = () => {
   const [authModal, setAuthModal] = useState<{ open: boolean; mode: 'signin' | 'signup' }>({ open: false, mode: 'signin' });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // Trigger scroll and reset animations whenever view changes
   useEffect(() => {
     if (selectedProduct) {
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -385,24 +393,31 @@ const App: React.FC = () => {
     window.open(DISCORD_LINK, '_blank');
   };
 
-  const addToCart = (product: Product) => {
+  const handleAddToCart = (product: Product, quantity: number = 1, optionIdx?: number) => {
+    const finalPrice = optionIdx !== undefined && product.options ? product.options[optionIdx].price : product.price;
+    const finalLabel = optionIdx !== undefined && product.options ? product.options[optionIdx].label : undefined;
+    
     setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
+      const cartItemId = `${product.id}-${optionIdx ?? 'none'}`;
+      const existing = prev.find(item => `${item.id}-${item.selectedOption ?? 'none'}` === cartItemId);
+      
       if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+        return prev.map(item => `${item.id}-${item.selectedOption ?? 'none'}` === cartItemId 
+          ? { ...item, quantity: item.quantity + quantity } 
+          : item);
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { ...product, quantity, price: finalPrice, selectedOption: finalLabel }];
     });
     setIsCartOpen(true);
   };
 
-  const removeFromCart = (id: string) => {
-    setCart(prev => prev.filter(item => item.id !== id));
+  const removeFromCart = (id: string, option?: string) => {
+    setCart(prev => prev.filter(item => !(item.id === id && item.selectedOption === option)));
   };
 
-  const updateQuantity = (id: string, delta: number) => {
+  const updateQuantity = (id: string, option: string | undefined, delta: number) => {
     setCart(prev => prev.map(item => {
-      if (item.id === id) {
+      if (item.id === id && item.selectedOption === option) {
         const newQty = Math.max(1, item.quantity + delta);
         return { ...item, quantity: newQty };
       }
@@ -518,23 +533,26 @@ const App: React.FC = () => {
                 <button onClick={() => setIsCartOpen(false)} className="text-blue-400 font-bold hover:underline">Start Shopping</button>
               </div>
             ) : (
-              cart.map(item => (
-                <div key={item.id} className="flex gap-4 p-4 bg-[#1a1c22] rounded-xl border border-gray-800 group transition-all hover:border-gray-700">
-                  <div className="h-20 w-20 rounded-lg overflow-hidden flex-shrink-0">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+              cart.map((item, idx) => (
+                <div key={`${item.id}-${idx}`} className="flex gap-4 p-4 bg-[#1a1c22] rounded-xl border border-gray-800 group transition-all hover:border-gray-700">
+                  <div className="h-20 w-20 rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
+                    <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2" />
                   </div>
                   <div className="flex-grow flex flex-col justify-between">
                     <div className="flex justify-between items-start gap-2">
-                      <h4 className="text-sm font-semibold text-gray-100 line-clamp-2">{item.name}</h4>
-                      <button onClick={() => removeFromCart(item.id)} className="text-gray-500 hover:text-red-500 transition-colors">
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-100 line-clamp-1">{item.name}</h4>
+                        {item.selectedOption && <p className="text-[10px] text-blue-400 font-bold uppercase">{item.selectedOption}</p>}
+                      </div>
+                      <button onClick={() => removeFromCart(item.id, item.selectedOption)} className="text-gray-500 hover:text-red-500 transition-colors">
                         <Trash2 size={16} />
                       </button>
                     </div>
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center gap-3 bg-gray-900 rounded-lg border border-gray-800 px-2 py-1">
-                        <button onClick={() => updateQuantity(item.id, -1)} className="text-gray-400 hover:text-white p-0.5"><Minus size={14} /></button>
+                        <button onClick={() => updateQuantity(item.id, item.selectedOption, -1)} className="text-gray-400 hover:text-white p-0.5"><Minus size={14} /></button>
                         <span className="text-sm font-bold text-white min-w-[1.5rem] text-center">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, 1)} className="text-gray-400 hover:text-white p-0.5"><Plus size={14} /></button>
+                        <button onClick={() => updateQuantity(item.id, item.selectedOption, 1)} className="text-gray-400 hover:text-white p-0.5"><Plus size={14} /></button>
                       </div>
                       <span className="text-blue-400 font-bold">{item.price}</span>
                     </div>
@@ -622,7 +640,7 @@ const App: React.FC = () => {
             </div>
 
             {DMA_SECTIONS.map((section, idx) => (
-              <SectionRenderer key={idx} section={section} onAddToCart={addToCart} onViewProduct={setSelectedProduct} />
+              <SectionRenderer key={idx} section={section} onAddToCart={(p) => handleAddToCart(p, 1)} onViewProduct={setSelectedProduct} />
             ))}
 
             <ReviewSection />
@@ -631,7 +649,7 @@ const App: React.FC = () => {
           <ProductView 
             product={selectedProduct} 
             onBack={() => setSelectedProduct(null)} 
-            onAddToCart={addToCart} 
+            onAddToCart={handleAddToCart} 
           />
         )}
       </main>

@@ -1,4 +1,3 @@
-
 import { ProductStatus, Section } from './types';
 
 export const NAVIGATION_LINKS = [
@@ -51,21 +50,21 @@ export const DMA_SECTIONS: Section[] = [
         id: "451",
         name: "Undetected DMA - 35t PCIe Card",
         price: "$99.99",
-        image: "https://ducks-services.com/uploads/monthly_2025_11/35t.webp.474bc2e55794b475380ee7e2ab57b995.webp",
+        image: "https://i.postimg.cc/mkjDVqTk/35t-webp-30b9a3774ac507352cce1c8243694a46-(1).webp",
         url: "#"
       },
       {
         id: "905",
         name: "Undetected DMA - 75t PCIe Card",
         price: "$149.99",
-        image: "https://ducks-services.com/uploads/monthly_2025_11/75t.png.bf1ab6ff7d40d4ae9c0e31d7136a8074.png",
+        image: "https://i.postimg.cc/Wbw7B62Q/ez.png",
         url: "#"
       },
       {
         id: "1426",
         name: "Undetected DMA - 100t PCIe Card",
         price: "$199.99",
-        image: "https://ducks-services.com/uploads/monthly_2025_11/100t.png.2fe4c47dd4ceb994101f75edf2825935.png",
+        image: "https://i.postimg.cc/Wbw7B62Q/ez.png",
         url: "#"
       }
     ]
@@ -78,7 +77,7 @@ export const DMA_SECTIONS: Section[] = [
         id: "707",
         name: "Undetected DMA - 1K HDMI Fuser",
         price: "$129.99",
-        image: "https://ducks-services.com/uploads/monthly_2025_11/fuser1.png.933cb28b3232309e2d7a9614bb60b19c.png",
+        image: "https://i.postimg.cc/3r48fnZw/Fuser-png-91030d660aef2f01e007ba95b08dcadc.png",
         url: "#"
       },
       {
@@ -104,18 +103,10 @@ export const DMA_SECTIONS: Section[] = [
         url: "#"
       },
       {
-        id: "661",
-        name: "Undetected DMA - KMBox Net",
-        price: "$24.99",
-        originalPrice: "$49.99",
-        image: "https://ducks-services.com/uploads/monthly_2025_11/net.webp.ec39da2c22f14457301fc1a52c169387.webp",
-        url: "#"
-      },
-      {
         id: "1163",
         name: "Undetected DMA - MAKCU",
         price: "$39.99",
-        image: "https://ducks-services.com/uploads/monthly_2025_11/mak1.webp.2031efed45464d3b6657d79c09c846ec.webp",
+        image: "https://i.postimg.cc/k4545C8N/Makcu-webp-07c37c325bda180f0810fe07a0f17573.webp",
         url: "#"
       }
     ]
