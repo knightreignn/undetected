@@ -25,7 +25,8 @@ import {
   Zap,
   Truck,
   Star,
-  Layers
+  Layers,
+  CreditCard
 } from 'lucide-react';
 import { NAVIGATION_LINKS, DMA_SECTIONS } from './constants';
 import { Product, ProductStatus } from './types';
@@ -52,20 +53,22 @@ const NATURAL_REVIEWS = [
   { user: "toxic_waste", date: "01/05/2025", text: "finally a provider that doesn't just vanish after u pay. had a firmware issue after a game update and they had a fix ready for me next day. legends.", initials: "TW" }
 ];
 
-const ProductCard: React.FC<{ product: Product; index: number; onAddToCart: (p: Product) => void; onViewProduct: (p: Product) => void }> = ({ product, index, onAddToCart, onViewProduct }) => {
+const ProductCard: React.FC<{ product: Product; onAddToCart: (p: Product) => void; onViewProduct: (p: Product) => void }> = ({ product, onAddToCart, onViewProduct }) => {
+  const redirectToDiscord = () => window.open(DISCORD_LINK, '_blank');
+
   return (
     <div 
-      className="group bg-[#1a1c22] rounded-xl overflow-hidden border border-gray-800 hover:border-blue-500 transition-all duration-300 flex flex-col h-full cursor-pointer" 
+      className="group bg-[#161b22] rounded-xl overflow-hidden border border-gray-800 hover:border-blue-500 transition-all duration-300 flex flex-col h-full cursor-pointer p-4" 
       onClick={() => onViewProduct(product)}
     >
-      <div className="relative aspect-[16/10] overflow-hidden bg-white/5">
+      <div className="relative aspect-video overflow-hidden bg-[#1a1c23] rounded-lg mb-6 flex items-center justify-center">
         <img 
           src={product.image} 
           alt={product.name}
-          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
         />
         {product.status && (
-          <div className={`absolute top-3 left-3 px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1 uppercase tracking-wider ${
+          <div className={`absolute top-3 left-3 px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1 uppercase tracking-wider z-10 ${
             product.status === ProductStatus.UNDETECTED ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 
             product.status === ProductStatus.UPDATING ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 
             'bg-red-500/20 text-red-400 border border-red-500/30'
@@ -75,20 +78,32 @@ const ProductCard: React.FC<{ product: Product; index: number; onAddToCart: (p: 
           </div>
         )}
       </div>
-      <div className="p-6 flex flex-col flex-grow">
+      <div className="flex flex-col flex-grow">
         <h3 className="text-base font-bold text-gray-100 mb-4 line-clamp-2 leading-tight min-h-[2.5rem]">
           {product.name}
         </h3>
-        <div className="mt-auto flex items-center justify-between">
-          <span className="text-xl font-bold text-white">{product.price}</span>
+        <div className="mt-auto flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xl font-bold text-white">{product.price}</span>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCart(product);
+              }}
+              className="p-2.5 bg-gray-800 hover:bg-blue-600 text-white rounded-lg transition-all active:scale-95 flex items-center justify-center"
+              title="Add to Cart"
+            >
+              <ShoppingCart size={18} />
+            </button>
+          </div>
           <button 
             onClick={(e) => {
               e.stopPropagation();
-              onViewProduct(product);
+              redirectToDiscord();
             }}
-            className="p-2.5 bg-gray-800 hover:bg-blue-600 text-white rounded-lg transition-all active:scale-95"
+            className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2 text-xs uppercase tracking-widest shadow-lg shadow-blue-600/10"
           >
-            <ShoppingCart size={18} />
+            <CreditCard size={16} /> Buy Now
           </button>
         </div>
       </div>
@@ -103,6 +118,7 @@ const ProductView: React.FC<{
 }> = ({ product, onBack, onAddToCart }) => {
   const [selectedOption, setSelectedOption] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const redirectToDiscord = () => window.open(DISCORD_LINK, '_blank');
 
   const displayPrice = product.options?.[selectedOption]?.price || product.price;
 
@@ -119,10 +135,10 @@ const ProductView: React.FC<{
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
         <div className="lg:col-span-8 space-y-8">
           <div className="bg-[#111318] border border-gray-800 rounded-3xl p-6 lg:p-8 flex flex-col md:flex-row gap-8 shadow-2xl relative overflow-hidden h-full">
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(59,130,246,0.05)_0%,_transparent_70%)] pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(184,84,230,0.08)_0%,_transparent_70%)] pointer-events-none" />
             
-            <div className="w-full md:w-1/2 aspect-square rounded-2xl overflow-hidden border border-gray-800/50 shadow-inner group bg-black/20 flex items-center justify-center">
-              <img src={product.image} alt={product.name} className="w-4/5 h-4/5 object-contain transition-transform duration-700 group-hover:scale-110" />
+            <div className="w-full md:w-1/2 aspect-video rounded-2xl overflow-hidden bg-[#1a1c23] border border-gray-800/50 shadow-inner group flex items-center justify-center">
+              <img src={product.image} alt={product.name} className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110" />
             </div>
 
             <div className="w-full md:w-1/2 flex flex-col justify-center">
@@ -132,12 +148,12 @@ const ProductView: React.FC<{
               
               <div className="flex flex-wrap gap-2 mb-8">
                 {product.tags ? product.tags.map(tag => (
-                  <div key={tag} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/10 border border-blue-500/20 rounded-full text-[10px] font-black text-white uppercase tracking-widest">
+                  <div key={tag} className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600/10 border border-purple-500/20 rounded-full text-[10px] font-black text-white uppercase tracking-widest">
                     {tag === 'DMA' ? <Layers size={10} /> : <Zap size={10} />}
                     {tag}
                   </div>
                 )) : (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/10 border border-blue-500/20 rounded-full text-[10px] font-black text-white uppercase tracking-widest">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600/10 border border-purple-500/20 rounded-full text-[10px] font-black text-white uppercase tracking-widest">
                     <Zap size={10} /> INSTANT DELIVERY
                   </div>
                 )}
@@ -152,7 +168,12 @@ const ProductView: React.FC<{
         </div>
 
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-[#111318] border border-gray-800 rounded-3xl p-8 shadow-2xl">
+          <div className="bg-[#111318] border border-gray-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+             {/* Background watermark effect similar to screenshot */}
+             <div className="absolute top-0 right-0 opacity-[0.03] rotate-12 -mr-8 -mt-8 pointer-events-none">
+                <ShieldCheck size={200} />
+             </div>
+
             <h3 className="text-xl font-bold text-white mb-2">Select Options</h3>
             <p className="text-xs text-gray-500 mb-8">Flexible access options tailored to your gaming experience!</p>
 
@@ -161,62 +182,78 @@ const ProductView: React.FC<{
                 <button 
                   key={i}
                   onClick={() => setSelectedOption(i)}
-                  className={`w-full text-left p-4 rounded-xl border transition-all relative overflow-hidden group ${
+                  className={`w-full text-left p-5 rounded-xl border transition-all relative overflow-hidden group ${
                     selectedOption === i 
-                      ? 'border-blue-500 bg-gradient-to-r from-blue-600/90 to-purple-600/90 shadow-lg shadow-blue-600/20' 
+                      ? 'border-purple-500 bg-gradient-to-r from-[#b854e6] to-[#7f4ae6] shadow-lg shadow-purple-600/20' 
                       : 'border-gray-800 bg-[#1a1c22] hover:border-gray-700'
                   }`}
                 >
+                  {/* Subtle key/logo pattern for selected state as seen in screenshot */}
+                  {selectedOption === i && (
+                    <div className="absolute bottom-0 right-0 opacity-20 -mr-2 -mb-2 transform rotate-12">
+                      <ShieldCheck size={64} />
+                    </div>
+                  )}
+
                   <div className="relative z-10 flex flex-col gap-1">
                     <div className="flex justify-between items-center">
-                      <span className={`text-[10px] font-black tracking-widest uppercase ${selectedOption === i ? 'text-blue-100' : 'text-gray-400'}`}>
+                      <span className={`text-[10px] font-black tracking-widest uppercase ${selectedOption === i ? 'text-purple-100' : 'text-gray-400'}`}>
                         {opt.label}
                       </span>
-                      <span className={`text-[9px] font-bold ${selectedOption === i ? 'text-blue-200' : 'text-gray-600'}`}>
+                      <span className={`text-[9px] font-bold ${selectedOption === i ? 'text-purple-200' : 'text-gray-600'}`}>
                         {opt.stock}
                       </span>
                     </div>
-                    <div className={`text-lg font-bold ${selectedOption === i ? 'text-white' : 'text-gray-200'}`}>
+                    <div className={`text-xl font-bold ${selectedOption === i ? 'text-white' : 'text-gray-200'}`}>
                       {opt.price}
                     </div>
                   </div>
                 </button>
               )) : (
-                <div className="p-4 rounded-xl border border-blue-500 bg-gradient-to-r from-blue-600/90 to-purple-600/90 text-white font-bold">
+                <div className="p-4 rounded-xl border border-purple-500 bg-gradient-to-r from-[#b854e6] to-[#7f4ae6] text-white font-bold">
                   Standard Edition
                 </div>
               )}
             </div>
 
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex-grow flex items-center justify-between bg-[#1a1c22] border border-gray-800 rounded-xl px-4 py-3">
-                <button 
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800/50 hover:bg-gray-800 text-blue-400 transition-colors"
-                >
-                  <Minus size={18} />
-                </button>
-                <span className="text-lg font-bold text-white">{quantity}</span>
-                <button 
-                  onClick={() => setQuantity(q => q + 1)}
-                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800/50 hover:bg-gray-800 text-blue-400 transition-colors"
-                >
-                  <Plus size={18} />
-                </button>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="flex-grow flex items-center justify-between bg-[#1a1c22] border border-gray-800 rounded-xl px-2 py-2">
+                  <button 
+                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#3a3b42] hover:bg-[#4a4b52] text-white transition-colors"
+                  >
+                    <Minus size={18} />
+                  </button>
+                  <span className="text-lg font-bold text-white">{quantity}</span>
+                  <button 
+                    onClick={() => setQuantity(q => q + 1)}
+                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#b854e6] hover:bg-[#c864f6] text-white transition-colors"
+                  >
+                    <Plus size={18} />
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <button 
-              onClick={() => onAddToCart(product, quantity, selectedOption)}
-              className="w-full py-5 bg-white text-black font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 transition-all active:scale-[0.98] shadow-xl"
-            >
-              Add To Cart
-            </button>
+              <button 
+                onClick={() => onAddToCart(product, quantity, selectedOption)}
+                className="w-full py-4 bg-white hover:bg-gray-100 text-black font-bold rounded-xl transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2"
+              >
+                Add To Cart
+              </button>
+
+              <button 
+                onClick={redirectToDiscord}
+                className="w-full py-4 bg-transparent border border-gray-800 hover:bg-gray-800 text-white font-bold rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 text-sm uppercase tracking-widest"
+              >
+                Buy Now on Discord
+              </button>
+            </div>
           </div>
 
           <div className="bg-[#111318]/50 border border-gray-800/50 rounded-2xl p-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center text-green-500">
+              <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500">
                 <ShieldCheck size={20} />
               </div>
               <div>
@@ -224,29 +261,8 @@ const ProductView: React.FC<{
                 <div className="text-[10px] text-gray-500">Included on all hardware</div>
               </div>
             </div>
-            <button className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Details</button>
+            <button onClick={redirectToDiscord} className="text-[10px] font-black text-purple-500 uppercase tracking-widest hover:text-purple-400 transition-colors">Details</button>
           </div>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-16 border-t border-gray-900">
-        <div className="space-y-4">
-          <h4 className="text-sm font-black text-blue-500 uppercase tracking-widest">Why Choose Us?</h4>
-          <p className="text-sm text-gray-400 leading-relaxed">
-            Our DMA hardware is designed for maximum stealth and throughput. We use customized Xilinx® FPGA chips with proprietary 1:1 firmware to ensure you remain undetected.
-          </p>
-        </div>
-        <div className="space-y-4">
-          <h4 className="text-sm font-black text-purple-500 uppercase tracking-widest">Compatibility</h4>
-          <p className="text-sm text-gray-400 leading-relaxed">
-            Compatible with all Windows 10 and 11 distributions. Works seamlessly with modern motherboards featuring PCIe slots.
-          </p>
-        </div>
-        <div className="space-y-4">
-          <h4 className="text-sm font-black text-green-500 uppercase tracking-widest">Setup Support</h4>
-          <p className="text-sm text-gray-400 leading-relaxed">
-            Every purchase includes a dedicated ticket in our Discord for step-by-step setup assistance from our staff.
-          </p>
         </div>
       </div>
     </div>
@@ -263,7 +279,7 @@ const SectionRenderer: React.FC<{ section: any; onAddToCart: (p: Product) => voi
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {section.products.map((product: Product, index: number) => (
-          <ProductCard key={product.id} product={product} index={index} onAddToCart={onAddToCart} onViewProduct={onViewProduct} />
+          <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} onViewProduct={onViewProduct} />
         ))}
       </div>
     </section>
@@ -271,13 +287,14 @@ const SectionRenderer: React.FC<{ section: any; onAddToCart: (p: Product) => voi
 };
 
 const ReviewSection: React.FC = () => {
+  const redirectToDiscord = () => window.open(DISCORD_LINK, '_blank');
   return (
     <section id="reviews-section" className="py-24 border-t border-gray-900 overflow-hidden bg-[#0a0c10]">
       <div className="text-center mb-16 px-4">
         <h2 className="text-5xl lg:text-7xl font-manrope font-black tracking-tighter text-white uppercase italic drop-shadow-[0_0_25px_rgba(59,130,246,0.2)]">
           CUSTOMERS REVIEWS
         </h2>
-        <div className="flex items-center justify-center gap-1.5 mt-6 text-blue-500">
+        <div className="flex items-center justify-center gap-1.5 mt-6 text-purple-500">
           {[1,2,3,4,5].map(i => <Star key={i} size={20} fill="currentColor" />)}
           <span className="ml-3 text-gray-400 font-bold tracking-widest text-sm uppercase">Excellent 4.9/5</span>
         </div>
@@ -285,15 +302,15 @@ const ReviewSection: React.FC = () => {
       
       <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 px-4 lg:px-12 space-y-6 max-w-[2000px] mx-auto">
         {NATURAL_REVIEWS.map((review, i) => (
-          <div key={i} className="break-inside-avoid bg-[#111318] border border-gray-800 rounded-2xl p-6 transition-all duration-300 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/5 group">
+          <div key={i} className="break-inside-avoid bg-[#111318] border border-gray-800 rounded-2xl p-6 transition-all duration-300 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/5 group">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-blue-600/20">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#b854e6] to-[#7f4ae6] flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-purple-600/20">
                   {review.initials}
                 </div>
                 <div>
                   <div className="text-white text-sm font-bold flex items-center gap-1.5">
-                    {review.user} <ShieldCheck size={14} className="text-blue-500" />
+                    {review.user} <ShieldCheck size={14} className="text-purple-500" />
                   </div>
                   <div className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Verified Buyer</div>
                 </div>
@@ -309,29 +326,27 @@ const ReviewSection: React.FC = () => {
                 "{review.text}"
               </p>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-800/50 flex items-center gap-2">
-              <span className="text-[10px] text-blue-500 font-bold uppercase tracking-tighter bg-blue-500/10 px-2 py-0.5 rounded">Setup Assistance Used</span>
-            </div>
           </div>
         ))}
       </div>
 
       <div className="mt-20 text-center">
-        <a href={DISCORD_LINK} target="_blank" rel="noopener noreferrer" className="px-10 py-5 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 hover:from-blue-600/20 hover:to-indigo-600/20 text-white rounded-xl font-bold border border-blue-500/30 transition-all inline-flex items-center gap-3 shadow-xl group">
+        <button onClick={redirectToDiscord} className="px-10 py-5 bg-gradient-to-r from-purple-600/10 to-indigo-600/10 hover:from-purple-600/20 hover:to-indigo-600/20 text-white rounded-xl font-bold border border-purple-500/30 transition-all inline-flex items-center gap-3 shadow-xl group">
           View 200+ Discord Vouchers <Star size={18} className="group-hover:rotate-[144deg] transition-transform duration-500" />
-        </a>
+        </button>
       </div>
     </section>
   );
 };
 
 const AuthModal: React.FC<{ isOpen: boolean; mode: 'signin' | 'signup'; onClose: () => void }> = ({ isOpen, mode, onClose }) => {
+  const redirectToDiscord = () => window.open(DISCORD_LINK, '_blank');
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
       <div className="relative bg-[#111318] border border-gray-800 w-full max-w-md p-8 rounded-2xl shadow-2xl overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500" />
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-indigo-500" />
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold text-white font-manrope">
             {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
@@ -340,22 +355,22 @@ const AuthModal: React.FC<{ isOpen: boolean; mode: 'signin' | 'signup'; onClose:
             <X size={24} />
           </button>
         </div>
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); redirectToDiscord(); }}>
           {mode === 'signup' && (
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-              <input type="text" placeholder="Full Name" className="w-full bg-[#1a1c22] border border-gray-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-blue-500 transition-colors" />
+              <input type="text" placeholder="Full Name" className="w-full bg-[#1a1c22] border border-gray-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-purple-500 transition-colors" />
             </div>
           )}
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-            <input type="email" placeholder="Email Address" className="w-full bg-[#1a1c22] border border-gray-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-blue-500 transition-colors" />
+            <input type="email" placeholder="Email Address" className="w-full bg-[#1a1c22] border border-gray-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-purple-500 transition-colors" />
           </div>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-            <input type="password" placeholder="Password" className="w-full bg-[#1a1c22] border border-gray-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-blue-500 transition-colors" />
+            <input type="password" placeholder="Password" className="w-full bg-[#1a1c22] border border-gray-800 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-purple-500 transition-colors" />
           </div>
-          <button className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all transform active:scale-95">
+          <button className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg shadow-purple-600/20 transition-all transform active:scale-95">
             {mode === 'signin' ? 'Sign In' : 'Sign Up'}
           </button>
         </form>
@@ -377,21 +392,7 @@ const App: React.FC = () => {
     }
   }, [selectedProduct?.id]);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setSelectedProduct(null);
-  };
-
-  const scrollToReviews = () => {
-    const reviews = document.getElementById('reviews-section');
-    if (reviews) {
-      reviews.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const redirectToDiscord = () => {
-    window.open(DISCORD_LINK, '_blank');
-  };
+  const redirectToDiscord = () => window.open(DISCORD_LINK, '_blank');
 
   const handleAddToCart = (product: Product, quantity: number = 1, optionIdx?: number) => {
     const finalPrice = optionIdx !== undefined && product.options ? product.options[optionIdx].price : product.price;
@@ -432,28 +433,40 @@ const App: React.FC = () => {
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setSelectedProduct(null);
+  };
+
+  const scrollToReviews = () => {
+    const reviews = document.getElementById('reviews-section');
+    if (reviews) {
+      reviews.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className={`min-h-screen bg-[#0c0e12] selection:bg-blue-600 selection:text-white ${(isCartOpen || authModal.open) ? 'overflow-hidden' : ''}`}>
+    <div className={`min-h-screen bg-[#0c0e12] selection:bg-purple-600 selection:text-white ${(isCartOpen || authModal.open) ? 'overflow-hidden' : ''}`}>
       <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-[#0c0e12]/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex h-20 items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               <button onClick={scrollToTop} className="flex-shrink-0 flex items-center group">
-                <span className="text-2xl font-manrope font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 pr-2">
+                <span className="text-2xl font-manrope font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500 pr-2">
                   UNDETECTED
                 </span>
               </button>
               <div className="hidden lg:flex items-center bg-gray-900/50 px-4 py-1.5 rounded-full border border-gray-800 text-xs font-medium text-gray-400 gap-3">
-                <div className="flex items-center gap-1.5 text-blue-400">
+                <div className="flex items-center gap-1.5 text-purple-400">
                   <Users size={14} />
                   <span className="text-white">64</span>
                   <span>Online</span>
                 </div>
                 <div className="h-3 w-px bg-gray-700"></div>
-                <div className="flex items-center gap-1.5 text-green-400">
+                <button onClick={redirectToDiscord} className="flex items-center gap-1.5 text-green-400 hover:text-white transition-colors">
                   <Signal size={14} />
                   <span>Live Status</span>
-                </div>
+                </button>
               </div>
             </div>
 
@@ -461,7 +474,7 @@ const App: React.FC = () => {
               {NAVIGATION_LINKS.map(link => (
                 <button 
                   key={link.name} 
-                  onClick={link.name === 'Store' ? scrollToTop : link.name === 'Reviews' ? scrollToReviews : undefined}
+                  onClick={redirectToDiscord}
                   className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
                 >
                   {link.name}
@@ -472,7 +485,12 @@ const App: React.FC = () => {
             <div className="flex items-center gap-3">
               <div className="relative hidden xl:block">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                <input type="text" placeholder="Search hardware..." className="bg-gray-900 border border-gray-800 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-blue-500 transition-colors w-64" />
+                <input 
+                  type="text" 
+                  placeholder="Search hardware..." 
+                  className="bg-gray-900 border border-gray-800 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-purple-500 transition-colors w-64" 
+                  onFocus={redirectToDiscord}
+                />
               </div>
               
               <button 
@@ -481,7 +499,7 @@ const App: React.FC = () => {
               >
                 <ShoppingCart size={20} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-[#0c0e12]">
+                  <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-[#0c0e12]">
                     {cartCount}
                   </span>
                 )}
@@ -495,12 +513,12 @@ const App: React.FC = () => {
               </button>
               <button 
                 onClick={() => setAuthModal({ open: true, mode: 'signup' })}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+                className="bg-purple-600 hover:bg-purple-500 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-lg shadow-purple-600/20 active:scale-95"
               >
                 Sign Up
               </button>
-              <button className="lg:hidden p-2 text-gray-400 hover:text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              <button className="lg:hidden p-2 text-gray-400 hover:text-white" onClick={redirectToDiscord}>
+                <Menu size={24} />
               </button>
             </div>
           </div>
@@ -517,9 +535,9 @@ const App: React.FC = () => {
         <div className="flex flex-col h-full">
           <div className="p-6 border-b border-gray-800 flex items-center justify-between bg-[#1a1c22]/50">
             <div className="flex items-center gap-3">
-              <ShoppingBag className="text-blue-500" />
+              <ShoppingBag className="text-purple-500" />
               <h2 className="text-xl font-bold text-white">Your Cart</h2>
-              <span className="bg-blue-600/20 text-blue-400 text-xs font-bold px-2 py-0.5 rounded-full">{cartCount} items</span>
+              <span className="bg-purple-600/20 text-purple-400 text-xs font-bold px-2 py-0.5 rounded-full">{cartCount} items</span>
             </div>
             <button onClick={() => setIsCartOpen(false)} className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all">
               <X size={24} />
@@ -530,19 +548,19 @@ const App: React.FC = () => {
               <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
                 <ShoppingCart size={64} className="text-gray-600 mb-2" />
                 <p className="text-gray-400 text-lg">Your cart is currently empty.</p>
-                <button onClick={() => setIsCartOpen(false)} className="text-blue-400 font-bold hover:underline">Start Shopping</button>
+                <button onClick={() => setIsCartOpen(false)} className="text-purple-400 font-bold hover:underline">Start Shopping</button>
               </div>
             ) : (
               cart.map((item, idx) => (
                 <div key={`${item.id}-${idx}`} className="flex gap-4 p-4 bg-[#1a1c22] rounded-xl border border-gray-800 group transition-all hover:border-gray-700">
-                  <div className="h-20 w-20 rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2" />
+                  <div className="h-20 w-20 rounded-lg overflow-hidden flex-shrink-0 bg-[#1a1c23] p-2">
+                    <img src={item.image} alt={item.name} className="max-w-full max-h-full object-contain" />
                   </div>
                   <div className="flex-grow flex flex-col justify-between">
                     <div className="flex justify-between items-start gap-2">
                       <div>
                         <h4 className="text-sm font-semibold text-gray-100 line-clamp-1">{item.name}</h4>
-                        {item.selectedOption && <p className="text-[10px] text-blue-400 font-bold uppercase">{item.selectedOption}</p>}
+                        {item.selectedOption && <p className="text-[10px] text-purple-400 font-bold uppercase">{item.selectedOption}</p>}
                       </div>
                       <button onClick={() => removeFromCart(item.id, item.selectedOption)} className="text-gray-500 hover:text-red-500 transition-colors">
                         <Trash2 size={16} />
@@ -554,7 +572,7 @@ const App: React.FC = () => {
                         <span className="text-sm font-bold text-white min-w-[1.5rem] text-center">{item.quantity}</span>
                         <button onClick={() => updateQuantity(item.id, item.selectedOption, 1)} className="text-gray-400 hover:text-white p-0.5"><Plus size={14} /></button>
                       </div>
-                      <span className="text-blue-400 font-bold">{item.price}</span>
+                      <span className="text-purple-400 font-bold">{item.price}</span>
                     </div>
                   </div>
                 </div>
@@ -575,9 +593,9 @@ const App: React.FC = () => {
               </div>
               <button 
                 onClick={redirectToDiscord}
-                className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-xl shadow-blue-600/20 transition-all active:scale-[0.98]"
+                className="w-full py-4 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl border border-gray-700 transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest text-sm"
               >
-                Proceed to Checkout
+                Checkout on Discord
               </button>
             </div>
           )}
@@ -589,25 +607,25 @@ const App: React.FC = () => {
           <>
             <section className="relative pt-12 pb-24 overflow-hidden">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] pointer-events-none">
-                <div className="absolute top-[-100px] left-[-200px] w-[600px] h-[600px] bg-blue-600/10 blur-[150px] rounded-full"></div>
+                <div className="absolute top-[-100px] left-[-200px] w-[600px] h-[600px] bg-purple-600/10 blur-[150px] rounded-full"></div>
                 <div className="absolute top-[100px] right-[-100px] w-[500px] h-[500px] bg-indigo-600/10 blur-[150px] rounded-full"></div>
               </div>
 
               <div className="relative">
                 <div className="flex flex-col items-center text-center">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-xs font-bold uppercase tracking-wider mb-8">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-400 text-xs font-bold uppercase tracking-wider mb-8">
                     <Signal size={12} />
                     Industry Leading Performance
                   </div>
                   <h1 className="text-5xl lg:text-8xl font-manrope font-extrabold text-white mb-8 leading-tight">
                     Undetected <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">DMA Excellence</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-[#b854e6] to-[#7f4ae6]">DMA Excellence</span>
                   </h1>
                   <p className="text-xl text-gray-400 mb-12 max-w-2xl leading-relaxed">
                     Unlock the full potential of your hardware. We provide top-tier DMA cards, customized firmware, and premium aiming devices with personalized setup support.
                   </p>
                   <div className="flex flex-wrap justify-center gap-6">
-                    <button onClick={redirectToDiscord} className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-5 rounded-xl text-lg font-bold flex items-center gap-2 transition-all shadow-xl shadow-blue-600/20 group active:scale-95">
+                    <button onClick={redirectToDiscord} className="bg-purple-600 hover:bg-purple-500 text-white px-10 py-5 rounded-xl text-lg font-bold flex items-center gap-2 transition-all shadow-xl shadow-purple-600/20 group active:scale-95">
                       <HelpCircle size={22} className="group-hover:rotate-12 transition-transform" />
                       What is DMA?
                       <ChevronRight size={20} />
@@ -621,9 +639,9 @@ const App: React.FC = () => {
               </div>
             </section>
 
-            <div className="bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-500/30 rounded-2xl p-6 mb-16 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30 rounded-2xl p-6 mb-16 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-4 text-center md:text-left">
-                <div className="p-3 bg-blue-500 rounded-xl shadow-lg shadow-blue-500/40">
+                <div className="p-3 bg-purple-500 rounded-xl shadow-lg shadow-purple-500/40">
                   <ShoppingBag className="text-white" size={24} />
                 </div>
                 <div>
@@ -633,14 +651,14 @@ const App: React.FC = () => {
               </div>
               <button 
                 onClick={redirectToDiscord}
-                className="whitespace-nowrap px-6 py-2.5 bg-white text-blue-900 font-bold rounded-lg hover:bg-blue-50 transition-colors shadow-lg active:scale-95"
+                className="whitespace-nowrap px-6 py-2.5 bg-white text-purple-900 font-bold rounded-lg hover:bg-gray-50 transition-colors shadow-lg active:scale-95"
               >
                 Join Discord
               </button>
             </div>
 
             {DMA_SECTIONS.map((section, idx) => (
-              <SectionRenderer key={idx} section={section} onAddToCart={(p) => handleAddToCart(p, 1)} onViewProduct={setSelectedProduct} />
+              <SectionRenderer key={idx} section={section} onAddToCart={handleAddToCart} onViewProduct={setSelectedProduct} />
             ))}
 
             <ReviewSection />
@@ -659,39 +677,39 @@ const App: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-3 mb-6">
-                <span className="text-2xl font-manrope font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 pr-2">UNDETECTED</span>
+                <span className="text-2xl font-manrope font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500 pr-2">UNDETECTED</span>
               </div>
               <p className="text-gray-400 max-w-md leading-relaxed mb-8">
                 Undetected provides top-tier modifications for AAA titles, with over 75,000 successful orders. Backed by 24/7 support and instant delivery. As a leading DMA hardware supplier, we provide cutting-edge solutions to take your gaming experience to the next level.
               </p>
               <div className="flex gap-4">
-                <a href={DISCORD_LINK} target="_blank" className="p-2.5 bg-gray-900 rounded-lg border border-gray-800 hover:border-blue-500 text-gray-400 hover:text-white transition-all active:scale-95"><Instagram size={20} /></a>
-                <a href={DISCORD_LINK} target="_blank" className="p-2.5 bg-gray-900 rounded-lg border border-gray-800 hover:border-blue-500 text-gray-400 hover:text-white transition-all active:scale-95"><Youtube size={20} /></a>
+                <button onClick={redirectToDiscord} className="p-2.5 bg-gray-900 rounded-lg border border-gray-800 hover:border-purple-500 text-gray-400 hover:text-white transition-all active:scale-95"><Instagram size={20} /></button>
+                <button onClick={redirectToDiscord} className="p-2.5 bg-gray-900 rounded-lg border border-gray-800 hover:border-purple-500 text-gray-400 hover:text-white transition-all active:scale-95"><Youtube size={20} /></button>
               </div>
             </div>
             
             <div>
               <h5 className="text-white font-bold mb-6">Quick Links</h5>
               <ul className="space-y-4">
-                <li><button onClick={redirectToDiscord} className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Customer Support</button></li>
-                <li><button onClick={redirectToDiscord} className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Terms of Service</button></li>
-                <li><button onClick={redirectToDiscord} className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Refund Policy</button></li>
-                <li><button onClick={redirectToDiscord} className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Shipping Policy</button></li>
+                <li><button onClick={redirectToDiscord} className="text-gray-400 hover:text-purple-400 text-sm transition-colors">Customer Support</button></li>
+                <li><button onClick={redirectToDiscord} className="text-gray-400 hover:text-purple-400 text-sm transition-colors">Terms of Service</button></li>
+                <li><button onClick={redirectToDiscord} className="text-gray-400 hover:text-purple-400 text-sm transition-colors">Refund Policy</button></li>
+                <li><button onClick={redirectToDiscord} className="text-gray-400 hover:text-purple-400 text-sm transition-colors">Shipping Policy</button></li>
               </ul>
             </div>
 
             <div>
               <h5 className="text-white font-bold mb-6">Contact</h5>
               <p className="text-sm text-gray-400 mb-4">For all other inquiries, contact:</p>
-              <a href="mailto:admin@ducks-services.com" className="text-blue-400 font-bold hover:underline">admin@ducks-services.com</a>
+              <button onClick={redirectToDiscord} className="text-purple-400 font-bold hover:underline">admin@ducks-services.com</button>
             </div>
           </div>
 
           <div className="border-t border-gray-900 pt-10 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-gray-500">
             <p>© 2024 Undetected. All rights reserved. Industry Leading DMA Hardware Provider.</p>
             <div className="flex items-center gap-6">
-              <span className="flex items-center gap-1.5"><Signal size={12} /> Server Status: Online</span>
-              <span className="flex items-center gap-1.5"><Users size={12} /> Active Users: 1,402</span>
+              <button onClick={redirectToDiscord} className="flex items-center gap-1.5 hover:text-white transition-colors"><Signal size={12} /> Server Status: Online</button>
+              <button onClick={redirectToDiscord} className="flex items-center gap-1.5 hover:text-white transition-colors"><Users size={12} /> Active Users: 1,402</button>
             </div>
           </div>
         </div>
