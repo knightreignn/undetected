@@ -1,8 +1,7 @@
-
 export enum ProductStatus {
   UNDETECTED = 'Undetected',
   UPDATING = 'Updating',
-  DETECED = 'Detected'
+  DETECTED = 'Detected'
 }
 
 export interface ProductOption {
